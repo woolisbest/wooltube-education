@@ -26,7 +26,7 @@ autoplay=1
 ```
 ⬇️これがkeyです。　２日ごとに更新されます⬇️
 ```
-[AXH1ezkiXo17vRFSmeJwtJuHR_dDGUGjPpAznRqtn2I41n3nIoDnfF4V6wGHAAKkCmAqKygzEypC7-MwGP8y3ZuIGAXVi8Am0zFkaTI_87rIulYXsBTnv-el9SHDLk86ZP8kMI0GKlSlAXazdpXB29jSjlx5eLDQq]
+AXH1ezkiXo17vRFSmeJwtJuHR_dDGUGjPpAznRqtn2I41n3nIoDnfF4V6wGHAAKkCmAqKygzEypC7-MwGP8y3ZuIGAXVi8Am0zFkaTI_87rIulYXsBTnv-el9SHDLk86ZP8kMI0GKlSlAXazdpXB29jSjlx5eLDQq
 ```
 ⬆️key⬆️
 ```
