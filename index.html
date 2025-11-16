@@ -346,6 +346,12 @@
         
         <div class="search-box">
             <div class="input-group">
+                <select id="paramSourceSelect" style="flex: 1; padding: 15px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 16px; background: #000000; color: white; cursor: pointer;">
+                    <option value="edu.txt">📚 edu.txt (テキスト形式)</option>
+                    <option value="parameter.json">📄 parameter.json (JSON形式)</option>
+                </select>
+            </div>
+            <div class="input-group">
                 <select id="apiKeySelect" style="flex: 1; padding: 15px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 16px; background: #000000; color: white; cursor: pointer;">
                     <option value="">YouTube Data API Key を選択（オプション）</option>
                     <option value="AIzaSyCz7f0X_giaGyC9u1EfGZPBuAC9nXiL5Mo">API Key 1</option>
@@ -365,7 +371,7 @@
             </div>
             <div class="api-note">
                 📚 YouTube Education モードで再生します<br>
-                ※教育用の最適化された埋め込みプレーヤーを使用
+                ※パラメータソースを選択して、教育用の最適化された埋め込みプレーヤーを使用
             </div>
         </div>
 
@@ -398,16 +404,28 @@
         ];
         
         async function loadEducationParams() {
-            if (educationParams !== null) return educationParams;
+            const paramSource = document.getElementById('paramSourceSelect').value;
             
             try {
-                const response = await fetch('https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/parameter.json');
+                let url;
+                if (paramSource === 'edu.txt') {
+                    url = 'https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/edu.txt';
+                } else {
+                    url = 'https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/parameter.json';
+                }
+                
+                const response = await fetch(url);
                 
                 if (response.ok) {
-                    const config = await response.json();
-                    // {"key":"パラメーター"} 形式に対応 - パラメータ文字列をそのまま保存
-                    educationParams = config.key || '';
-                    console.log('Education params loaded:', educationParams);
+                    if (paramSource === 'edu.txt') {
+                        const text = await response.text();
+                        educationParams = text.trim();
+                        console.log('Education params loaded from edu.txt:', educationParams);
+                    } else {
+                        const config = await response.json();
+                        educationParams = config.key || '';
+                        console.log('Education params loaded from parameter.json:', educationParams);
+                    }
                     return educationParams;
                 } else {
                     educationParams = '';
@@ -462,6 +480,7 @@
         document.addEventListener('DOMContentLoaded', function() {
             const apiKeySelect = document.getElementById('apiKeySelect');
             const customKeyInput = document.getElementById('customKeyInput');
+            const paramSourceSelect = document.getElementById('paramSourceSelect');
             
             if (apiKeySelect) {
                 apiKeySelect.addEventListener('change', function() {
@@ -470,6 +489,13 @@
                     } else {
                         customKeyInput.style.display = 'none';
                     }
+                });
+            }
+            
+            if (paramSourceSelect) {
+                paramSourceSelect.addEventListener('change', function() {
+                    educationParams = null;
+                    showInfo(`パラメータソースを ${this.value} に変更しました`);
                 });
             }
         });
@@ -664,7 +690,7 @@
                 finalParams += `${loopParams}loop=1&playlist=${videoId}`;
             }
             
-            // keyの内容をそのままvideoIDの後ろに付ける
+            // edu.txtの内容をそのままvideoIDの後ろに付ける
             const educationUrl = `https://www.youtubeeducation.com/embed/${videoId}${finalParams}`;
             
             playerContainer.innerHTML = `<iframe id="player" width="100%" height="100%" src="${educationUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
