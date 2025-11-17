@@ -347,8 +347,8 @@
         <div class="search-box">
             <div class="input-group">
                 <select id="paramSourceSelect" style="flex: 1; padding: 15px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 16px; background: #000000; color: white; cursor: pointer;">
-                    <option value="edu.txt">📚 edu.txt (テキスト形式)</option>
-                    <option value="parameter.json">📄 parameter.json (JSON形式)</option>
+                    <option value="parameter.json">📄 parameter.json</option>
+                    <option value="edu.json">📚 edu.json</option>
                 </select>
             </div>
             <div class="input-group">
@@ -396,7 +396,7 @@
     <script>
         let currentVideoId = null;
         let isLoopEnabled = false;
-        let educationParams = null;
+        let educationParams = {};
         
         const GOOGLE_CSE_IDS = [
             '208525a8a6ab2430a',
@@ -406,35 +406,37 @@
         async function loadEducationParams() {
             const paramSource = document.getElementById('paramSourceSelect').value;
             
+            // 既にキャッシュがある場合はそれを返す
+            if (educationParams[paramSource] !== undefined) {
+                return educationParams[paramSource];
+            }
+            
             try {
                 let url;
-                if (paramSource === 'edu.txt') {
-                    url = 'https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/edu.txt';
+                if (paramSource === 'edu.json') {
+                    url = 'https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/edu.json';
                 } else {
                     url = 'https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/parameter.json';
                 }
                 
+                console.log('Fetching from:', url);
                 const response = await fetch(url);
+                console.log('Response status:', response.status);
                 
                 if (response.ok) {
-                    if (paramSource === 'edu.txt') {
-                        const text = await response.text();
-                        educationParams = text.trim();
-                        console.log('Education params loaded from edu.txt:', educationParams);
-                    } else {
-                        const config = await response.json();
-                        educationParams = config.key || '';
-                        console.log('Education params loaded from parameter.json:', educationParams);
-                    }
-                    return educationParams;
+                    const config = await response.json();
+                    educationParams[paramSource] = config.key || '';
+                    console.log(`Education params loaded from ${paramSource}:`, educationParams[paramSource]);
+                    return educationParams[paramSource];
                 } else {
-                    educationParams = '';
-                    return educationParams;
+                    console.error('Response not OK:', response.status, response.statusText);
+                    educationParams[paramSource] = '';
+                    return educationParams[paramSource];
                 }
             } catch (err) {
                 console.error('Failed to load education params:', err);
-                educationParams = '';
-                return educationParams;
+                educationParams[paramSource] = '';
+                return educationParams[paramSource];
             }
         }
         
@@ -494,7 +496,6 @@
             
             if (paramSourceSelect) {
                 paramSourceSelect.addEventListener('change', function() {
-                    educationParams = null;
                     showInfo(`パラメータソースを ${this.value} に変更しました`);
                 });
             }
@@ -681,20 +682,35 @@
             playerContainer.innerHTML = '<div style="display:flex;align-items:center;justify-content:center;height:100%;background:#000;color:#fff;">Education設定を読み込み中...</div>';
             streamUrl.textContent = 'Education設定を読み込み中...';
 
+            const paramSource = document.getElementById('paramSourceSelect').value;
             const paramsString = await loadEducationParams();
             
-            // ループパラメータを追加
+            console.log('Params string:', paramsString);
+            
+            // JSONから取得したパラメータをそのまま使用
             let finalParams = paramsString;
+            
+            // ループ機能の追加
             if (isLoopEnabled) {
-                const loopParams = finalParams ? '&' : '?';
-                finalParams += `${loopParams}loop=1&playlist=${videoId}`;
+                // パラメータが既に存在するか確認
+                if (finalParams && finalParams.includes('?')) {
+                    // 既に?がある場合は&で追加
+                    finalParams += `&loop=1&playlist=${videoId}`;
+                } else if (finalParams) {
+                    // パラメータがあるが?がない場合
+                    finalParams = `?${finalParams}&loop=1&playlist=${videoId}`;
+                } else {
+                    // パラメータがない場合は?で開始
+                    finalParams = `?loop=1&playlist=${videoId}`;
+                }
             }
             
-            // edu.txtの内容をそのままvideoIDの後ろに付ける
+            // JSONの内容をそのまま後ろに付ける
             const educationUrl = `https://www.youtubeeducation.com/embed/${videoId}${finalParams}`;
+            console.log('Final education URL:', educationUrl);
             
             playerContainer.innerHTML = `<iframe id="player" width="100%" height="100%" src="${educationUrl}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
-            streamUrl.textContent = `📚 YouTube Education | Loop: ${isLoopEnabled ? 'ON' : 'OFF'}`;
+            streamUrl.textContent = `📚 YouTube Education (${paramSource}) | Loop: ${isLoopEnabled ? 'ON' : 'OFF'}`;
 
             playerSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
