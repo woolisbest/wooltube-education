@@ -347,8 +347,9 @@
         <div class="search-box">
             <div class="input-group">
                 <select id="paramSourceSelect" style="flex: 1; padding: 15px; border: 2px solid rgba(255,255,255,0.3); border-radius: 8px; font-size: 16px; background: #000000; color: white; cursor: pointer;">
-                    <option value="parameter.json">📄 parameter.json</option>
-                    <option value="edu.json">📚 edu.json</option>
+                    <option value="parameter.json">woolisbest 1</option>
+                    <option value="edu.json">woolisbest 2</option>
+                    <option value="video_config.json">幸せok</option>
                 </select>
             </div>
             <div class="input-group">
@@ -415,6 +416,8 @@
                 let url;
                 if (paramSource === 'edu.json') {
                     url = 'https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/edu.json';
+                } else if (paramSource === 'video_config.json') {
+                    url = 'https://raw.githubusercontent.com/siawaseok3/wakame/master/video_config.json';
                 } else {
                     url = 'https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/parameter.json';
                 }
@@ -425,7 +428,12 @@
                 
                 if (response.ok) {
                     const config = await response.json();
-                    educationParams[paramSource] = config.key || '';
+                    // video_config.jsonは"params"、他は"key"を使用
+                    if (paramSource === 'video_config.json') {
+                        educationParams[paramSource] = config.params || '';
+                    } else {
+                        educationParams[paramSource] = config.key || '';
+                    }
                     console.log(`Education params loaded from ${paramSource}:`, educationParams[paramSource]);
                     return educationParams[paramSource];
                 } else {
