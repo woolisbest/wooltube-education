@@ -7,4 +7,7 @@ WOOLtubeのyoutubeeducationのみを使った形式です。
 
 １日１００回ずつなので使えなければ他の物に変えてください。
 
-educationのパラメーター・keyは[ここ](https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/parameter.json)から自動で取得しています。
+educationのパラメーター・keyは↓から取得しています。
+
+[paramerter.json](https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/parameter.json)
+[edu.json](https://raw.githubusercontent.com/woolisbest-4520/about-youtube/refs/heads/main/edu.json)
